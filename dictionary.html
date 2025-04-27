@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Dictionary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center p-6 min-h-screen">
+    
+    <div class="w-full max-w-3xl bg-white p-6 rounded-2xl shadow-xl text-center">
+        <h1 class="text-4xl font-bold text-blue-600 mb-6">Sign Language Dictionary</h1>
+        
+        <!-- Search Bar & Clear Button -->
+        <div class="relative w-full flex items-center">
+            <input type="text" id="search" placeholder="Search for a word..." 
+                class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button id="clearSearch" class="ml-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">Clear</button>
+        </div>
+        
+        <!-- Word List -->
+        <ul id="wordList" class="mt-4 grid grid-cols-2 gap-3"></ul>
+        
+        <!-- Video Display -->
+        <div id="videoContainer" class="mt-6 hidden">
+            <video id="signVideo" class="w-full rounded-lg shadow-md" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        
+        <!-- Return Home Button -->
+        <a href="web.html" class="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-all">Return Home</a>
+    </div>
+    
+    <script>
+        const words = {
+            "hello": "hello.mp4",
+            "thank you": "thank.mp4",
+            "please": "please.mp4",
+            "yes": "yes.mp4",
+            "no": "no.mp4",
+            "goodbye": "goodbye.mp4",
+            "sorry": "sorry.mp4",
+            "help": "help.mp4"
+        };
+
+        const searchInput = document.getElementById('search');
+        const wordList = document.getElementById('wordList');
+        const videoContainer = document.getElementById('videoContainer');
+        const signVideo = document.getElementById('signVideo');
+        const clearSearch = document.getElementById('clearSearch');
+        
+        function displayWords(query = "") {
+            wordList.innerHTML = '';
+            Object.keys(words).forEach(word => {
+                if (word.includes(query.toLowerCase())) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = word;
+                    listItem.classList = "cursor-pointer p-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition-all text-lg text-center";
+                    listItem.addEventListener('click', () => showVideo(word));
+                    wordList.appendChild(listItem);
+                }
+            });
+        }
+
+        function showVideo(word) {
+            signVideo.src = words[word];
+            videoContainer.classList.remove('hidden');
+            signVideo.play();
+        }
+
+        searchInput.addEventListener('input', () => displayWords(searchInput.value));
+        clearSearch.addEventListener('click', () => {
+            searchInput.value = "";
+            displayWords();
+        });
+        
+        displayWords();
+    </script>
+</body>
+</html>

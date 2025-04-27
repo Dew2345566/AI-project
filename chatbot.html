@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AI Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-header {
+            background: #2a5298;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 300px;
+            border-bottom: 2px solid #ddd;
+        }
+        .chat-box div {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: #2a5298;
+            color: white;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background: #f1f1f1;
+            color: black;
+            align-self: flex-start;
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+        .chat-input button {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .chat-input button:hover {
+            background: #1e3c72;
+        }
+        .return-home {
+            text-align: center;
+            margin: 10px 0;
+        }
+        .return-home a {
+            text-decoration: none;
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .return-home a:hover {
+            background: #ff4f4f;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">AI Chatbot</div>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type a message...">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div class="return-home">
+            <a href="app.html">Return Home</a>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'AIzaSyD89snZ8_d5n6FBn8xn33ibCZnNISqTeWA';
+        let model;
+
+        async function initializeModel() {
+            const genAI = new GoogleGenerativeAI(API_KEY);
+            model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+        }
+
+        async function sendMessage() {
+            let inputField = document.getElementById("user-input");
+            let chatBox = document.getElementById("chat-box");
+            let userMessage = inputField.value;
+            if (userMessage.trim() === "") return;
+            
+            let userDiv = document.createElement("div");
+            userDiv.textContent = "You: " + userMessage;
+            userDiv.classList.add("user-message");
+            chatBox.appendChild(userDiv);
+            inputField.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                if (!model) {
+                    console.error("Model not initialized yet.");
+                    let botDiv = document.createElement("div");
+                    botDiv.textContent = "Bot: AI is still loading, please try again.";
+                    botDiv.classList.add("bot-message");
+                    chatBox.appendChild(botDiv);
+                    return;
+                }
+
+                const chatSession = model.startChat();
+                const result = await chatSession.sendMessage(userMessage);
+                let botResponse = result.response.text();
+                let botDiv = document.createElement("div");
+                botDiv.textContent = "Bot: " + botResponse;
+                botDiv.classList.add("bot-message");
+                chatBox.appendChild(botDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                console.error("Error fetching response:", error);
+                let botDiv = document.createElement("div");
+                botDiv.textContent = "Bot: Sorry, I'm having trouble responding right now.";
+                botDiv.classList.add("bot-message");
+                chatBox.appendChild(botDiv);
+            }
+        }
+
+        // Initialize the AI model on page load
+        initializeModel();
+    </script>
+</body>
+</html>
